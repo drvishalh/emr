@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-<!-- PASTE THE SAFETY PATCH RIGHT HERE -->
+<!-- SAFETY PATCH -->
 <script>
 HTMLInputElement.prototype._setValue = HTMLInputElement.prototype.__lookupSetter__('value');
 HTMLInputElement.prototype.__defineSetter__('value', function(val) {
@@ -126,6 +126,22 @@ Element.prototype.setAttribute = function(name, value) {
 
       <!-- LEFT COLUMN: CLINICAL DATA ENTRY (7 COLS) -->
       <div class="lg:col-span-7 space-y-4">
+
+        <!-- VISIT PREVIEW PANEL (Initially Hidden for selecting past visits) -->
+        <div id="visitPreviewPanel" class="border border-indigo-200 rounded-lg p-4 bg-indigo-50/60 hidden shadow-sm">
+            <div class="flex justify-between items-center mb-2 border-b border-indigo-200 pb-2">
+                <h3 class="font-bold text-indigo-900 text-xs uppercase tracking-wider">📂 Historical Visit Preview (<span id="previewDate"></span>)</h3>
+                <button onclick="closeVisitPreview()" class="text-xs text-red-600 hover:underline font-semibold">✕ Close Preview</button>
+            </div>
+            <div class="text-xs text-slate-700 grid grid-cols-2 gap-2 mb-3">
+                <div><strong>Location:</strong> <span id="prevLoc"></span></div>
+                <div><strong>Vitals (BP/Pulse):</strong> <span id="prevVitals"></span></div>
+                <div class="col-span-2"><strong>Clinical Notes / Advice:</strong> <p id="prevAdvice" class="bg-white p-2 rounded border border-indigo-100 mt-1"></p></div>
+            </div>
+            <button onclick="repeatPastPrescription()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-bold shadow">
+                🔄 Repeat This Prescription & Notes
+            </button>
+        </div>
 
         <!-- 1. PATIENT DETAILS & PAST VISITS BAR -->
         <section class="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
@@ -351,7 +367,7 @@ Element.prototype.setAttribute = function(name, value) {
             </div>
           </div>
 
-          <!-- Add Medicine Row (Fully Editable Dosage & Timing with Remarks) -->
+          <!-- Add Medicine Row -->
           <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 text-xs bg-slate-50 p-2.5 rounded border border-slate-200">
             <div class="sm:col-span-4 relative">
               <label class="block text-[11px] text-slate-500 mb-0.5">Medicine Name (Type to search)</label>
@@ -525,7 +541,6 @@ Element.prototype.setAttribute = function(name, value) {
             </div>
           </div>
 
-          <!-- Dynamic Additional Services Container -->
           <div id="additional-services-container" class="space-y-2"></div>
 
           <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs font-bold bg-slate-50 p-2.5 rounded">
@@ -634,7 +649,6 @@ Element.prototype.setAttribute = function(name, value) {
                 </div>
               </div>
 
-              <!-- Vitals Summary Line -->
               <div id="prev-vitals-line" class="text-[11px] text-slate-700 mb-1.5 hidden"></div>
               <div id="prev-labs-line" class="text-[11px] text-slate-700 mb-2 hidden"></div>
 
@@ -670,7 +684,6 @@ Element.prototype.setAttribute = function(name, value) {
                   <p id="prev-tests-line" class="hidden"><strong>Tests for Next Visit:</strong> <span id="prev-tests"></span></p>
                 </div>
                 
-                <!-- Diet QR Code Box for Print -->
                 <div id="prev-diet-qr-box" class="ml-3 text-center border border-slate-300 p-1.5 rounded bg-slate-50">
                   <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://bit.ly/3Q2R1rD" alt="Diabetes Diet Chart QR" class="w-16 h-16 mx-auto" />
                   <span class="text-[9px] font-bold text-slate-700 block mt-0.5">Scan for<br/>Diet Chart</span>
@@ -842,10 +855,6 @@ Element.prototype.setAttribute = function(name, value) {
               <input type="range" id="set-margin-cm" min="0" max="12" step="0.5" oninput="document.getElementById('set-margin-Readout').innerText = this.value + ' cm'" class="w-full accent-blue-600" />
             </div>
           </div>
-          <label class="flex items-center gap-2 pt-1">
-            <input type="checkbox" id="set-default-pad-mode" class="rounded text-blue-600" />
-            <span>Enable Preprinted Pad Mode by default</span>
-          </label>
         </div>
 
         <div class="p-3 bg-purple-50/70 rounded border border-purple-200 space-y-2">
@@ -938,6 +947,7 @@ Element.prototype.setAttribute = function(name, value) {
     let additionalServicesList = [];
     let currentPatientId = null;
     let activeRxList = [];
+    let selectedHistoricalVisit = null; // Temporary state for previewed past visit
     let selectedSymptoms = new Set();
     let selectedInstructions = new Set();
     let selectedTests = new Set();
@@ -1178,8 +1188,6 @@ Element.prototype.setAttribute = function(name, value) {
 
    function parseAndImportEkaCareData(results) {
     let visitCount = 0;
-    
-    // Safely extract the array regardless of how the parser returns it
     let importedList = [];
     if (Array.isArray(results)) {
         importedList = results;
@@ -1193,36 +1201,13 @@ Element.prototype.setAttribute = function(name, value) {
         const name = String(item.patient_name || item.name || "").trim();
         if (!name || name.toLowerCase() === "patient_name") return;
 
-        const sex = String(item.patient_gender || item.gender || "M").toUpperCase().startsWith("F") ? "F" : "M";
-        const rawAgeStr = String(item.patient_age || item.age || "").trim();
-        const ageMatch = rawAgeStr.match(/\d+/);
-        const age = ageMatch ? parseInt(ageMatch[0], 10) : "";
-
-        const phone = String(item.patient_mobile_number || item.phone || "").replace(/\D/g, "");
         const ptId = String(item.patient_uhid || item.patient_id || item.uhid || "").trim() || ("VH" + Math.floor(1000 + Math.random() * 9000));
-
-        const visitDate = String(item.visit_date || item.date || item.created_at || "").trim() || new Date().toISOString().split('T')[0];
-        const diagnosis = String(item.diagnosis || item.final_diagnosis || "General Checkup").trim();
-
-        // Parse medication if present in raw data row
-        const medName = String(item.medicine_name || item.drug_name || item.medicine || "").trim();
-        const rxList = [];
-        if (medName) {
-            rxList.push({
-                name: medName,
-                dose: String(item.dosage || item.dose || "1-0-1").trim(),
-                timing: String(item.timing || "After Food").trim(),
-                dur: String(item.duration || "30 Days").trim(),
-                remark: String(item.remark || "").trim()
-            });
-        }
-
-        if (visitCount === 0 && typeof loadPatientRecord === 'function') {
+        if (visitCount === 0) {
             loadPatientRecord(ptId, 0);
         }
         visitCount++;
     });
-}
+   }
 
     async function callGeminiAPI(promptText, base64Image = null, mimeType = "image/jpeg") {
       const apiKey = (clinicSettings.geminiKey || document.getElementById("set-gemini-key")?.value || "").trim();
@@ -1600,7 +1585,6 @@ Element.prototype.setAttribute = function(name, value) {
       });
     }
 
-    // Auto-load memory when typing a drug name
     document.addEventListener("input", function(e) {
       if (e.target && e.target.id === "rx-med-input") {
         const medName = e.target.value.trim().toLowerCase();
@@ -1635,6 +1619,51 @@ Element.prototype.setAttribute = function(name, value) {
       renderActiveRxTable();
       updateLivePreview();
       alert(`✅ Loaded ${activeRxList.length} medicines and services from previous visit!`);
+    }
+
+    // --- VISIT PREVIEW & REPEAT WORKFLOW FUNCTIONS ---
+    function previewHistoricalVisit(visitIndex) {
+        const pt = patientsDB.find(p => String(p.id) === String(currentPatientId));
+        if (!pt || !Array.isArray(pt.visits)) return;
+        const v = pt.visits[visitIndex];
+        if (!v) return;
+
+        // Populate the dedicated preview panel
+        document.getElementById('previewDate').innerText = v.date ? new Date(v.date).toLocaleDateString() : 'Unknown Date';
+        document.getElementById('prevLoc').innerText = v.location || '-';
+        document.getElementById('prevVitals').innerText = `${v.vitals?.bp || 'N/A'} / ${v.vitals?.pulse || 'N/A'}`;
+        document.getElementById('prevAdvice').innerText = v.advice || v.notes || 'No notes recorded.';
+
+        // Store selected historical visit temporarily
+        selectedHistoricalVisit = v;
+
+        // Reveal the preview panel
+        document.getElementById('visitPreviewPanel').classList.remove('hidden');
+    }
+
+    function closeVisitPreview() {
+        document.getElementById('visitPreviewPanel').classList.add('hidden');
+        selectedHistoricalVisit = null;
+    }
+
+    function repeatPastPrescription() {
+        const v = selectedHistoricalVisit;
+        if (!v) {
+            alert("No historical visit selected to repeat.");
+            return;
+        }
+
+        // Copy historical advice/notes into active text area & load past Rx
+        const adviceField = document.getElementById('rx-advice');
+        if (adviceField) adviceField.value = v.advice || '';
+        if (v.dx) document.getElementById('clinical-dx').value = v.dx;
+        if (Array.isArray(v.rx)) {
+            activeRxList = JSON.parse(JSON.stringify(v.rx));
+            renderActiveRxTable();
+        }
+
+        alert("✅ Prescription, diagnosis, and notes loaded into current consultation!");
+        closeVisitPreview();
     }
 
     function loadProtocol(key) {
@@ -1860,7 +1889,7 @@ Element.prototype.setAttribute = function(name, value) {
     }
 
     function loadPatientRecord(ptId, visitIndex = 0) {
-      const pt = patientsDB.find(p => p.id === ptId);
+      const pt = patientsDB.find(p => String(p.id) === String(ptId));
       if (!pt) return;
       currentPatientId = pt.id;
       document.getElementById("pt-id-badge").innerText = `ID: ${pt.id}`;
@@ -1905,15 +1934,18 @@ Element.prototype.setAttribute = function(name, value) {
     }
 
     function openPastVisitsModal() {
-      const pt = patientsDB.find(p => p.id === currentPatientId);
+      const pt = patientsDB.find(p => String(p.id) === String(currentPatientId));
       if (!pt) return;
       document.getElementById("past-visits-modal-title").innerText = `📂 Past Visits — ${pt.name} (${pt.id})`;
       const list = document.getElementById("past-visits-list");
       const visits = Array.isArray(pt.visits) ? pt.visits : [];
       list.innerHTML = visits.length === 0 ? `<div class="p-4 text-center text-slate-400">No past visits.</div>` : visits.map((v, idx) => `
         <div class="p-3 border rounded bg-slate-50 flex items-center justify-between">
-          <div><strong>${new Date(v.date).toLocaleDateString()}</strong> — ${v.dx || "Visit"}</div>
-          <button onclick="loadPatientRecord('${pt.id}', ${idx}); closePastVisitsModal();" class="bg-blue-600 text-white px-2.5 py-1 rounded text-xs font-semibold">Load</button>
+          <div><strong>${new Date(v.date || Date.now()).toLocaleDateString()}</strong> — ${v.dx || "Visit"} (${v.location || 'Clinic'})</div>
+          <div class="flex gap-1.5">
+            <button onclick="previewHistoricalVisit(${idx}); closePastVisitsModal();" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1 rounded text-xs font-semibold">Preview</button>
+            <button onclick="loadPatientRecord('${pt.id}', ${idx}); closePastVisitsModal();" class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded text-xs font-semibold">Load Directly</button>
+          </div>
         </div>
       `).join("");
       document.getElementById("past-visits-modal").classList.remove("hidden");
@@ -1959,6 +1991,8 @@ Element.prototype.setAttribute = function(name, value) {
 
     function resetNewVisit() {
       currentPatientId = null;
+      selectedHistoricalVisit = null;
+      document.getElementById("visitPreviewPanel").classList.add("hidden");
       document.getElementById("pt-id-badge").innerText = "ID: NEW";
       document.getElementById("btn-past-visits").classList.add("hidden");
       document.getElementById("btn-repeat-rx").classList.add("hidden");
