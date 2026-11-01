@@ -4339,7 +4339,7 @@ function dispatchGoogleReviewWhatsApp() {
       appState.settings.msg91Sender = document.getElementById("cfg-msg91-sender").value.trim() || "PRANAV";
       appState.settings.msg91Template = document.getElementById("cfg-msg91-template").value.trim();
       appState.settings.geminiKey = document.getElementById("cfg-gemini-key").value.trim();
-      appState.settings.firebaseUrl = document.getElementById("cfg-firebase-url").value.trim();
+      appState.settings.firebaseUrl = document.getElementById("cfg-firebase-url").value.trim() || "https://pranav-clinic-emr-default-rtdb.asia-southeast1.firebasedatabase.app";
       persistMasterState();
       alert("✅ API configurations successfully saved!");
     }
