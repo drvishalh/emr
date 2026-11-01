@@ -1,22 +1,28 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Pranav Diabetic & General Health Clinic — Master Clinical EMR v2026.10</title>
-<link rel="manifest" href="manifest.json">
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW failed'));
-    });
-  }
-</script>
-    // Simple Clinic PIN Protection
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Pranav Diabetic & General Health Clinic - Master Clinical EMR v2026.10</title>
+
+    <!-- PWA Manifest Link -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Service Worker Script -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW failed'));
+        });
+      }
+    </script>
+
+    <!-- PIN Protection Script (Make sure these <script> tags are here!) -->
+    <script>
     (function() {
-        const CLINIC_PIN = "2016"; // Change this to your preferred PIN code
+        const CLINIC_PIN = "2016"; 
         let isAuthenticated = sessionStorage.getItem("pranav_emr_auth") === "true";
-        
+
         if (!isAuthenticated) {
             let enteredPin = prompt("Enter Clinic Access PIN:");
             if (enteredPin === CLINIC_PIN) {
@@ -27,7 +33,8 @@
             }
         }
     })();
-</script>
+    </script>
+</head>
   <!-- External Print & QR Helpers (Fallback to Offline Canvas/SVG included in Part 3) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Tamil:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
