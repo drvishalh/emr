@@ -4,6 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Pranav Diabetic & General Health Clinic — Master Clinical EMR v2026.10</title>
+<script>
+    // Simple Clinic PIN Protection
+    (function() {
+        const CLINIC_PIN = "2016"; // Change this to your preferred PIN code
+        let isAuthenticated = sessionStorage.getItem("pranav_emr_auth") === "true";
+        
+        if (!isAuthenticated) {
+            let enteredPin = prompt("Enter Clinic Access PIN:");
+            if (enteredPin === CLINIC_PIN) {
+                sessionStorage.setItem("pranav_emr_auth", "true");
+            } else {
+                document.body.innerHTML = "<h2 style='text-align:center; margin-top:20vh; font-family:sans-serif; color:#333;'>Access Denied. Authorized Clinic Staff Only.</h2>";
+                throw new Error("Unauthorized Access");
+            }
+        }
+    })();
+</script>
   <!-- External Print & QR Helpers (Fallback to Offline Canvas/SVG included in Part 3) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Tamil:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
