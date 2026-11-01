@@ -3750,7 +3750,13 @@ function calculateRowTotalTablets(container) {
         });
       }
 
-      persistMasterState();
+      // 👉 PASTE CLOUD SYNC TRIGGER HERE:
+      const latestPatientObj = appState.patients.find(p => p.uhid === uhid);
+      if (latestPatientObj && typeof syncPatientToCloud === "function") {
+          syncPatientToCloud(latestPatientObj);
+      }
+
+      persistMasterState();      
       alert(`✅ Consultation successfully saved for ${name} (UHID: ${uhid})! Follow-up and billing synchronized.`);
     }
 
