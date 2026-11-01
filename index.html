@@ -2973,30 +2973,6 @@ window.addEventListener("DOMContentLoaded", () => {
   if (typeof refreshPrintPreview === "function") refreshPrintPreview();
 });
 
-  // 3. Wire up IndexedDB drug formulary search autocomplete
-  const searchInput = document.getElementById("drug-search-input");
-  if (searchInput) {
-    searchInput.addEventListener("input", function(e) {
-      const searchTerm = e.target.value;
-      searchIndexedDBDrugs(searchTerm, function(matchingDrugs) {
-        console.log("Found matching drugs:", matchingDrugs);
-        if (typeof renderDrugSearchResults === "function") {
-          renderDrugSearchResults(matchingDrugs);
-        }
-      });
-    });
-  }
-
-  // 4. Render remaining UI components
-    if (typeof updateDietQrPreviewImage === "function") updateDietQrPreviewImage();
-    if (typeof renderSettingsDietLinks === "function") renderSettingsDietLinks();
-    if (typeof renderPatientRegistryTable === "function") renderPatientRegistryTable();
-    if (typeof renderAppointmentsTable === "function") renderAppointmentsTable();
-    if (typeof renderRevenueLedger === "function") renderRevenueLedger();
-    if (typeof updateTopKpis === "function") updateTopKpis();
-    if (typeof refreshPrintPreview === "function") refreshPrintPreview();
-}); // <--- The DOMContentLoaded block closes HERE
-
 // ==========================================
 // WORKSPACE SWITCHER (Must be global!)
 // ==========================================
