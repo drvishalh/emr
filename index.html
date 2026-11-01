@@ -2916,6 +2916,18 @@ function populateRemarksDatalist() {
   datalist.innerHTML = savedRemarks.map(r => `<option value="${r}">`).join("");
 }  
 window.addEventListener("DOMContentLoaded", () => {
+  // 👉 PASTE CLOUD FETCH ON STARTUP HERE:
+  if (typeof firebase !== "undefined") {
+      firebase.database().ref("clinics/pranav_padi/patients").once("value").then(snapshot => {
+          const cloudPatients = snapshot.val();
+          if (cloudPatients) {
+              appState.patients = Object.values(cloudPatients);
+              persistMasterState();
+              if (typeof renderPatientRegistryTable === "function") renderPatientRegistryTable();
+              console.log("☁️ Pulled records from cloud successfully!");
+          }
+      });
+  }
   // 1. Initialize IndexedDB FIRST, then render tables once db is ready
   initIndexedDB().then(() => {
     console.log("IndexedDB ready, loading UI...");
