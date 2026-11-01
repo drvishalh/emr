@@ -2923,7 +2923,9 @@ window.addEventListener("DOMContentLoaded", () => {
           if (cloudPatients) {
               appState.patients = Object.values(cloudPatients);
               persistMasterState();
+              // Re-render all views immediately once cloud data arrives!
               if (typeof renderPatientRegistryTable === "function") renderPatientRegistryTable();
+              if (typeof renderAppointmentsTable === "function") renderAppointmentsTable();
               if (typeof updateTopKpis === "function") updateTopKpis();
               console.log("☁️ Successfully pulled all records from cloud on startup!");
           }
