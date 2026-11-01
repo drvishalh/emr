@@ -2916,7 +2916,7 @@ function populateRemarksDatalist() {
   datalist.innerHTML = savedRemarks.map(r => `<option value="${r}">`).join("");
 }  
 window.addEventListener("DOMContentLoaded", () => {
-  // 👉 PASTE CLOUD FETCH ON STARTUP HERE:
+  // 1. Pull all patient records from Firebase cloud on startup FIRST
   if (typeof firebase !== "undefined") {
       firebase.database().ref("clinics/pranav_padi/patients").once("value").then(snapshot => {
           const cloudPatients = snapshot.val();
@@ -2924,11 +2924,13 @@ window.addEventListener("DOMContentLoaded", () => {
               appState.patients = Object.values(cloudPatients);
               persistMasterState();
               if (typeof renderPatientRegistryTable === "function") renderPatientRegistryTable();
-              console.log("☁️ Pulled records from cloud successfully!");
+              if (typeof updateTopKpis === "function") updateTopKpis();
+              console.log("☁️ Successfully pulled all records from cloud on startup!");
           }
-      });
+      }).catch(err => console.error("Cloud fetch error:", err));
   }
-  // 1. Initialize IndexedDB FIRST, then render tables once db is ready
+
+  // 2. Initialize IndexedDB for the 2.5L+ drug formulary
   initIndexedDB().then(() => {
     console.log("IndexedDB ready, loading UI...");
     if (typeof renderFormularyTable === "function") renderFormularyTable();
@@ -2936,17 +2938,40 @@ window.addEventListener("DOMContentLoaded", () => {
   }).catch(err => {
     console.error("IndexedDB initialization failed:", err);
   });
-populateRemarksDatalist()
-  // 2. Set visit date & default prescription row (Timing set to blank: "")
+
+  // 3. Set visit date & default prescription rows
   const ptVisitDate = document.getElementById("pt-visit-date");
   if (ptVisitDate) ptVisitDate.value = new Date().toISOString().split("T")[0];
   
   if (typeof addPrescriptionRow === "function") {
-  addPrescriptionRow(); // Row 1 (Blank)
-  addPrescriptionRow(); // Row 2 (Blank)
-  addPrescriptionRow(); // Row 3 (Blank)
-  addPrescriptionRow(); // Row 4 (Blank)
-}
+    addPrescriptionRow(); // Row 1 (Blank)
+    addPrescriptionRow(); // Row 2 (Blank)
+    addPrescriptionRow(); // Row 3 (Blank)
+    addPrescriptionRow(); // Row 4 (Blank)
+  }
+
+  // 4. Wire up IndexedDB drug formulary search autocomplete
+  const searchInput = document.getElementById("drug-search-input");
+  if (searchInput) {
+    searchInput.addEventListener("input", function(e) {
+      const searchTerm = e.target.value;
+      searchIndexedDBDrugs(searchTerm, function(matchingDrugs) {
+        if (typeof renderDrugSearchResults === "function") {
+          renderDrugSearchResults(matchingDrugs);
+        }
+      });
+    });
+  }
+
+  // 5. Render remaining UI components
+  if (typeof updateDietQrPreviewImage === "function") updateDietQrPreviewImage();
+  if (typeof renderSettingsDietLinks === "function") renderSettingsDietLinks();
+  if (typeof renderPatientRegistryTable === "function") renderPatientRegistryTable();
+  if (typeof renderAppointmentsTable === "function") renderAppointmentsTable();
+  if (typeof renderRevenueLedger === "function") renderRevenueLedger();
+  if (typeof updateTopKpis === "function") updateTopKpis();
+  if (typeof refreshPrintPreview === "function") refreshPrintPreview();
+});
 
   // 3. Wire up IndexedDB drug formulary search autocomplete
   const searchInput = document.getElementById("drug-search-input");
