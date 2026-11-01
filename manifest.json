@@ -1,0 +1,15 @@
+{
+  "name": "Pranav Clinic EMR",
+  "short_name": "Pranav EMR",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0a2540",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3774/3774299.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

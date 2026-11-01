@@ -4,7 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Pranav Diabetic & General Health Clinic — Master Clinical EMR v2026.10</title>
+<link rel="manifest" href="manifest.json">
 <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW failed'));
+    });
+  }
+</script>
     // Simple Clinic PIN Protection
     (function() {
         const CLINIC_PIN = "2016"; // Change this to your preferred PIN code
