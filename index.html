@@ -1185,6 +1185,11 @@
     display: block;
   }
 
+  /* When expanded via class toggle, show the body */
+  .clinical-card.expanded .clinical-card-body {
+    display: block !important;
+  }
+
   /* Add dropdown arrow indicator to headers */
   .clinical-card-header::after {
     content: " ▼";
@@ -3026,18 +3031,14 @@ window.addEventListener("DOMContentLoaded", () => {
       }).catch(err => console.error("Cloud fetch error:", err));
   }
 
-  // Foolproof mobile accordion event delegation
+  // Foolproof mobile accordion class toggler
   if (window.innerWidth <= 768) {
     document.addEventListener("click", (e) => {
       const header = e.target.closest(".clinical-card-header");
       if (header) {
         const card = header.closest(".clinical-card");
         if (card) {
-          const body = card.querySelector(".clinical-card-body");
-          if (body) {
-            const currentDisplay = window.getComputedStyle(body).display;
-            body.style.display = (currentDisplay === "none" || currentDisplay === "") ? "block" : "none";
-          }
+          card.classList.toggle("expanded");
         }
       }
     });
