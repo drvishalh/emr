@@ -3050,7 +3050,7 @@ window.addEventListener("DOMContentLoaded", () => {
       }).catch(err => console.error("Cloud fetch error:", err));
   }
 
-  // Foolproof mobile accordion class toggler
+  // Bulletproof Mobile Accordion Script
   if (window.innerWidth <= 768) {
     document.addEventListener("click", (e) => {
       const header = e.target.closest(".clinical-card-header");
@@ -3058,6 +3058,15 @@ window.addEventListener("DOMContentLoaded", () => {
         const card = header.closest(".clinical-card");
         if (card) {
           card.classList.toggle("expanded");
+          const body = card.querySelector(".clinical-card-body");
+          if (body) {
+            // Force toggle display style as a backup to CSS classes
+            if (card.classList.contains("expanded")) {
+              body.style.setProperty("display", "block", "important");
+            } else {
+              body.style.setProperty("display", "none", "important");
+            }
+          }
         }
       }
     });
