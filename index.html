@@ -1174,6 +1174,23 @@
     font-weight: 700;
     border-radius: 8px;
   }
+
+  /* Hide card bodies by default on mobile for accordion effect */
+  .clinical-card .clinical-card-body {
+    display: none;
+  }
+  
+  /* Keep the first card (Patient Identification) open by default */
+  .clinical-card:first-of-type .clinical-card-body {
+    display: block;
+  }
+
+  /* Add dropdown arrow indicator to headers */
+  .clinical-card-header::after {
+    content: " ▼";
+    font-size: 10px;
+    color: var(--brand-600);
+  }
 }
 
 /* Hide mobile bottom dock on large desktop screens */
@@ -3009,13 +3026,13 @@ window.addEventListener("DOMContentLoaded", () => {
       }).catch(err => console.error("Cloud fetch error:", err));
   }
 
-  // 👇 PASTE THE MOBILE ACCORDION SCRIPT RIGHT HERE:
+  // Enable smooth accordion toggle behavior on mobile
   if (window.innerWidth <= 768) {
     document.querySelectorAll(".clinical-card-header").forEach(header => {
       header.addEventListener("click", () => {
         const body = header.nextElementSibling;
         if (body) {
-          body.style.display = (body.style.display === "none") ? "block" : "none";
+          body.style.display = (body.style.display === "block") ? "none" : "block";
         }
       });
     });
