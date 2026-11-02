@@ -1119,9 +1119,85 @@
         display: none !important;
       }
     }
+/* ==========================================================================
+   EKACARE MOBILE APP RESPONSIVE TRANSFORMATION (Screens <= 768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+  /* Hide desktop-only multi-column sidebars & preview sheets on mobile */
+  .preview-sticky-column, 
+  .consultation-master-grid {
+    display: block !important;
+  }
+  
+  /* Transform clinical cards into collapsible accordions */
+  .clinical-card {
+    margin-bottom: 8px;
+    border-radius: var(--radius-md);
+  }
+  
+  .clinical-card-header {
+    cursor: pointer;
+    user-select: none;
+  }
+  
+  /* Make form grids single-column for easy thumb scrolling */
+  .form-grid, .form-grid-dense {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Add padding at the bottom so content isn't blocked by the bottom action dock */
+  body {
+    padding-bottom: 75px !important;
+  }
+
+  /* Fixed Bottom Action Dock (EkaCare Style) */
+  .ekacare-bottom-dock {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border-std);
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1500;
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
+  }
+
+  .ekacare-bottom-dock .btn {
+    flex: 1;
+    margin: 0 4px;
+    padding: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    border-radius: 8px;
+  }
+}
+
+/* Hide mobile bottom dock on large desktop screens */
+@media (min-width: 769px) {
+  .ekacare-bottom-dock {
+    display: none !important;
+  }
+}
   </style>
 </head>
-<body>
+<!-- EKACARE MOBILE BOTTOM ACTION DOCK -->
+  <div class="ekacare-bottom-dock no-print">
+    <button type="button" class="btn btn-outline" onclick="switchWorkspace('view-patients', document.querySelectorAll('.nav-btn')[1])">
+      👥 Registry
+    </button>
+    <button type="button" class="btn btn-outline" onclick="syncWithFirebaseCloud()">
+      🔄 Push Sync
+    </button>
+    <button type="button" class="btn btn-success" onclick="commitConsultationAndSync()">
+      🚀 Send Rx & Save
+    </button>
+  </div>
+</body>
+</html>
 
   <!-- ========================================================================
        TOP ENTERPRISE COMMAND BAR
@@ -2925,13 +3001,24 @@ window.addEventListener("DOMContentLoaded", () => {
           if (cloudPatients) {
               appState.patients = Object.values(cloudPatients);
               persistMasterState();
-              // Re-render all views immediately once cloud data arrives!
               if (typeof renderPatientRegistryTable === "function") renderPatientRegistryTable();
               if (typeof renderAppointmentsTable === "function") renderAppointmentsTable();
               if (typeof updateTopKpis === "function") updateTopKpis();
               console.log("☁️ Successfully pulled all records from cloud on startup!");
           }
       }).catch(err => console.error("Cloud fetch error:", err));
+  }
+
+  // 👇 PASTE THE MOBILE ACCORDION SCRIPT RIGHT HERE:
+  if (window.innerWidth <= 768) {
+    document.querySelectorAll(".clinical-card-header").forEach(header => {
+      header.addEventListener("click", () => {
+        const body = header.nextElementSibling;
+        if (body) {
+          body.style.display = (body.style.display === "none") ? "block" : "none";
+        }
+      });
+    });
   }
 
   // 2. Initialize IndexedDB for the 2.5L+ drug formulary
