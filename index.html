@@ -1240,17 +1240,52 @@
   </style>
 </head>
 <!-- EKACARE MOBILE BOTTOM ACTION DOCK -->
-  <div class="ekacare-bottom-dock no-print">
-    <button type="button" class="btn btn-outline" onclick="switchWorkspace('view-patients', document.querySelectorAll('.nav-btn')[1])">
-      👥 Registry
-    </button>
-    <button type="button" class="btn btn-outline" onclick="syncWithFirebaseCloud()">
-      🔄 Push Sync
-    </button>
-    <button type="button" class="btn btn-success" onclick="commitConsultationAndSync()">
-      🚀 Send Rx & Save
-    </button>
-  </div>
+<div class="ekacare-bottom-dock no-print">
+  <button type="button" class="btn btn-outline" onclick="switchWorkspace('view-patients', document.querySelectorAll('.nav-btn')[1])">
+    👥 Registry
+  </button>
+  <button type="button" class="btn btn-outline" onclick="syncWithFirebaseCloud()">
+    🔄 Push Sync
+  </button>
+  <button type="button" class="btn btn-success" onclick="commitConsultationAndSync()">
+    🚀 Send Rx & Save
+  </button>
+</div>
+
+<!-- PASTE THE STANDALONE SCRIPT RIGHT HERE -->
+<script>
+(function() {
+  // 1. Unregister old Service Workers so your phone always loads your latest GitHub updates
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+
+  // 2. Direct Tap-to-Expand Handler for Clinical Cards
+  function handleCardToggle(e) {
+    if (e.target.closest('input, button, select, textarea, a')) return;
+
+    const header = e.target.closest('.clinical-card-header');
+    if (!header) return;
+
+    const card = header.closest('.clinical-card');
+    if (!card) return;
+
+    const body = card.querySelector('.clinical-card-body');
+    if (!body) return;
+
+    const isHidden = window.getComputedStyle(body).display === 'none';
+    card.classList.toggle('expanded', isHidden);
+    body.style.setProperty('display', isHidden ? 'block' : 'none', 'important');
+  }
+
+  document.addEventListener('click', handleCardToggle, true);
+})();
+</script>
+
 </body>
 </html>
 
