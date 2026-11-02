@@ -19,7 +19,7 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-    <<!-- Secure Password Authentication with Lockout Protection -->
+    <!-- Secure Password Authentication with Lockout Protection -->
 <script>
 (function() {
     const SECURE_PASSWORD = "Pranav@2016";
@@ -55,7 +55,6 @@
     }
 })();
 </script>
-</head>
   <!-- External Print & QR Helpers (Fallback to Offline Canvas/SVG included in Part 3) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Tamil:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
@@ -1139,155 +1138,97 @@
       }
     }
 /* ==========================================================================
-   EKACARE MOBILE APP RESPONSIVE TRANSFORMATION (Screens <= 768px)
-   ========================================================================== */
-@media (max-width: 768px) {
-  /* Hide desktop-only multi-column sidebars & preview sheets on mobile */
-  .preview-sticky-column, 
-  .consultation-master-grid {
-    display: block !important;
-  }
-  
-  /* Transform clinical cards into collapsible accordions */
-  .clinical-card {
-    margin-bottom: 8px;
-    border-radius: var(--radius-md);
-  }
-  
-  .clinical-card-header {
-    cursor: pointer;
-    user-select: none;
-  }
-  
-  /* Make form grids single-column for easy thumb scrolling */
-  .form-grid, .form-grid-dense {
-    grid-template-columns: 1fr !important;
-  }
+       EKACARE MOBILE APP RESPONSIVE TRANSFORMATION (Screens <= 768px)
+       ========================================================================== */
+    @media (max-width: 768px) {
+      /* Hide desktop-only multi-column sidebars & preview sheets on mobile */
+      .preview-sticky-column, 
+      .consultation-master-grid {
+        display: block !important;
+      }
+      
+      /* Transform clinical cards into collapsible accordions */
+      .clinical-card {
+        margin-bottom: 8px;
+        border-radius: var(--radius-md);
+      }
+      
+      .clinical-card-header {
+        cursor: pointer;
+        user-select: none;
+      }
+      
+      /* Make form grids single-column for easy thumb scrolling */
+      .form-grid, .form-grid-dense {
+        grid-template-columns: 1fr !important;
+      }
 
-  /* Add padding at the bottom so content isn't blocked by the bottom action dock */
-  body {
-    padding-bottom: 75px !important;
-  }
+      /* Add padding at the bottom so content isn't blocked by the bottom action dock */
+      body {
+        padding-bottom: 75px !important;
+      }
 
-  /* Fixed Bottom Action Dock (EkaCare Style) */
-  .ekacare-bottom-dock {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: var(--bg-surface);
-    border-top: 1px solid var(--border-std);
-    padding: 8px 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    z-index: 1500;
-    box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
-  }
+      /* Fixed Bottom Action Dock (EkaCare Style) */
+      .ekacare-bottom-dock {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--bg-surface);
+        border-top: 1px solid var(--border-std);
+        padding: 8px 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 1500;
+        box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
+      }
 
-  .ekacare-bottom-dock .btn {
-    flex: 1;
-    margin: 0 4px;
-    padding: 10px;
-    font-size: 13px;
-    font-weight: 700;
-    border-radius: 8px;
-  }
+      .ekacare-bottom-dock .btn {
+        flex: 1;
+        margin: 0 4px;
+        padding: 10px;
+        font-size: 13px;
+        font-weight: 700;
+        border-radius: 8px;
+      }
 
-  /* Hide card bodies by default on mobile for accordion effect */
-  .clinical-card .clinical-card-body {
-    display: none;
-  }
-  
-  /* Keep the first card (Patient Identification) open by default */
-  .clinical-card:first-of-type .clinical-card-body {
-    display: block;
-  }
+      /* Hide card bodies by default on mobile for accordion effect */
+      .clinical-card .clinical-card-body {
+        display: none;
+      }
+      
+      /* Keep the first card (Patient Identification) open by default */
+      .left-clinical-column > .clinical-card:first-of-type {
+        /* We will also give this the .expanded class on load so it can be toggled closed too */
+      }
 
-  /* When expanded via class toggle, show the body */
-  .clinical-card.expanded .clinical-card-body {
-    display: block !important;
-  }
+      /* When expanded via class toggle, show the body */
+      .clinical-card.expanded > .clinical-card-body {
+        display: block !important;
+      }
 
-  /* Add dropdown arrow indicator to headers */
-  .clinical-card-header::after {
-    content: " ▼";
-    font-size: 10px;
-    color: var(--brand-600);
-  }
-}
+      /* Add dropdown arrow indicator to headers */
+      .clinical-card-header::after {
+        content: " ▼";
+        font-size: 10px;
+        color: var(--brand-600);
+      }
 
-/* Hide mobile bottom dock on large desktop screens */
-@media (min-width: 769px) {
-  .ekacare-bottom_dock {
-    display: none !important;
-  }
-}
-  /* Add dropdown arrow indicator to headers */
-  .clinical-card-header::after {
-    content: " ▼";
-    font-size: 10px;
-    color: var(--brand-600);
-  }
-}
+      .clinical-card.expanded > .clinical-card-header::after {
+        content: " ▲";
+      }
+    }
 
-/* Hide mobile bottom dock on large desktop screens */
-@media (min-width: 769px) {
-  .ekacare-bottom-dock {
-    display: none !important;
-  }
-}
+    /* Hide mobile bottom dock on large desktop screens */
+    @media (min-width: 769px) {
+      .ekacare-bottom-dock {
+        display: none !important;
+      }
+    }
   </style>
 </head>
-<!-- EKACARE MOBILE BOTTOM ACTION DOCK -->
-<div class="ekacare-bottom-dock no-print">
-  <button type="button" class="btn btn-outline" onclick="switchWorkspace('view-patients', document.querySelectorAll('.nav-btn')[1])">
-    👥 Registry
-  </button>
-  <button type="button" class="btn btn-outline" onclick="syncWithFirebaseCloud()">
-    🔄 Push Sync
-  </button>
-  <button type="button" class="btn btn-success" onclick="commitConsultationAndSync()">
-    🚀 Send Rx & Save
-  </button>
-</div>
-
-<!-- PASTE THE STANDALONE SCRIPT RIGHT HERE -->
-<script>
-(function() {
-  // 1. Unregister old Service Workers so your phone always loads your latest GitHub updates
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(function(registrations) {
-      for (let registration of registrations) {
-        registration.unregister();
-      }
-    });
-  }
-
-  // 2. Direct Tap-to-Expand Handler for Clinical Cards
-  function handleCardToggle(e) {
-    if (e.target.closest('input, button, select, textarea, a')) return;
-
-    const header = e.target.closest('.clinical-card-header');
-    if (!header) return;
-
-    const card = header.closest('.clinical-card');
-    if (!card) return;
-
-    const body = card.querySelector('.clinical-card-body');
-    if (!body) return;
-
-    const isHidden = window.getComputedStyle(body).display === 'none';
-    card.classList.toggle('expanded', isHidden);
-    body.style.setProperty('display', isHidden ? 'block' : 'none', 'important');
-  }
-
-  document.addEventListener('click', handleCardToggle, true);
-})();
-</script>
-
-</body>
-</html>
+<body>
 
   <!-- ========================================================================
        TOP ENTERPRISE COMMAND BAR
@@ -1320,9 +1261,9 @@
         🔬 Scan Lab Report (OCR)
       </button>
       <input type="file" id="lab-ocr-file-input" accept="image/*,.pdf" style="display:none;" onchange="handleLabOcrFile(event)" />
+<button type="button" class="btn btn-outline btn-sm" style="background:rgba(255,255,255,0.12); color:#fff; border-color:rgba(255,255,255,0.3);" onclick="toggleDarkMode()">
+  🌗 Theme
 </button>
-        🌗 Theme
-      </button>
     </div>
   </header>
 
@@ -1904,12 +1845,14 @@
                 🖨️ Print Rx + Bill
               </button>
               <button type="button" class="btn btn-outline" onclick="dispatchWhatsAppPrescription()">
-                📲 Send WhatsApp Rx + Diet Link
-              </button>
-              <button type="button" class="btn btn-outline" onclick="dispatchMsg91Sms()">
-                ✉️ Send MSG91 SMS
-<button type="button" class="btn btn-amber" onclick="dispatchGoogleReviewWhatsApp()">⭐ Request Google Review</button>
-              </button>
+  📲 Send WhatsApp Rx + Diet Link
+</button>
+<button type="button" class="btn btn-outline" onclick="dispatchMsg91Sms()">
+  ✉️ Send MSG91 SMS
+</button>
+<button type="button" class="btn btn-amber" onclick="dispatchGoogleReviewWhatsApp()">
+  ⭐ Request Google Review
+</button>
             </div>
           </div>
         </section>
@@ -3084,7 +3027,10 @@ function populateRemarksDatalist() {
   datalist.innerHTML = savedRemarks.map(r => `<option value="${r}">`).join("");
 }  
 window.addEventListener("DOMContentLoaded", () => {
-  // 1. Pull all patient records from Firebase cloud on startup FIRST
+  // 1. Initialize Firebase Cloud Sync
+  initFirebaseSync();
+
+  // 2. Pull all patient records from Firebase cloud on startup
   if (typeof firebase !== "undefined") {
       firebase.database().ref("clinics/pranav_padi/patients").once("value").then(snapshot => {
           const cloudPatients = snapshot.val();
@@ -3099,20 +3045,7 @@ window.addEventListener("DOMContentLoaded", () => {
       }).catch(err => console.error("Cloud fetch error:", err));
   }
 
-  // Foolproof mobile accordion class toggler
-  if (window.innerWidth <= 768) {
-    document.addEventListener("click", (e) => {
-      const header = e.target.closest(".clinical-card-header");
-      if (header) {
-        const card = header.closest(".clinical-card");
-        if (card) {
-          card.classList.toggle("expanded");
-        }
-      }
-    });
-  }
-
-  // 2. Initialize IndexedDB for the 2.5L+ drug formulary
+  // 3. Initialize IndexedDB for the 2.5L+ drug formulary
   initIndexedDB().then(() => {
     console.log("IndexedDB ready, loading UI...");
     if (typeof renderFormularyTable === "function") renderFormularyTable();
@@ -3121,7 +3054,7 @@ window.addEventListener("DOMContentLoaded", () => {
     console.error("IndexedDB initialization failed:", err);
   });
 
-  // 3. Set visit date & default prescription rows
+  // 4. Set visit date & default prescription rows
   const ptVisitDate = document.getElementById("pt-visit-date");
   if (ptVisitDate) ptVisitDate.value = new Date().toISOString().split("T")[0];
   
@@ -3132,7 +3065,7 @@ window.addEventListener("DOMContentLoaded", () => {
     addPrescriptionRow(); // Row 4 (Blank)
   }
 
-  // 4. Wire up IndexedDB drug formulary search autocomplete
+  // 5. Wire up IndexedDB drug formulary search autocomplete
   const searchInput = document.getElementById("drug-search-input");
   if (searchInput) {
     searchInput.addEventListener("input", function(e) {
@@ -3145,7 +3078,7 @@ window.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 5. Render remaining UI components
+  // 6. Render remaining UI components
   if (typeof updateDietQrPreviewImage === "function") updateDietQrPreviewImage();
   if (typeof renderSettingsDietLinks === "function") renderSettingsDietLinks();
   if (typeof renderPatientRegistryTable === "function") renderPatientRegistryTable();
@@ -4628,6 +4561,55 @@ function dispatchGoogleReviewWhatsApp() {
       };
       reader.readAsText(file);
     }
+  <!-- EKACARE MOBILE BOTTOM ACTION DOCK -->
+  <div class="ekacare-bottom-dock no-print">
+    <button type="button" class="btn btn-outline" onclick="switchWorkspace('view-patients', document.querySelectorAll('.nav-btn')[1])">
+      👥 Registry
+    </button>
+    <button type="button" class="btn btn-outline" onclick="syncWithFirebaseCloud()">
+      🔄 Push Sync
+    </button>
+    <button type="button" class="btn btn-success" onclick="commitConsultationAndSync()">
+      🚀 Send Rx & Save
+    </button>
+  </div>
+
+  <!-- STANDALONE MOBILE ACCORDION & CACHE BUSTING SCRIPT -->
+  <script>
+  (function() {
+    // 1. Unregister old Service Workers so mobile browsers instantly pull fresh GitHub commits
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for (let registration of registrations) {
+          registration.unregister();
+        }
+      });
+    }
+
+    // 2. Start the first clinical card expanded on mobile by default
+    window.addEventListener('DOMContentLoaded', function() {
+      if (window.innerWidth <= 768) {
+        const firstCard = document.querySelector('.left-clinical-column > .clinical-card');
+        if (firstCard) firstCard.classList.add('expanded');
+      }
+    });
+
+    // 3. Foolproof Tap-to-Expand Event Delegation for Accordions
+    document.addEventListener('click', function(e) {
+      if (window.innerWidth > 768) return;
+
+      // Prevent triggering when tapping interactive inputs or buttons inside headers
+      if (e.target.closest('input, button, select, textarea, a')) return;
+
+      const header = e.target.closest('.clinical-card-header');
+      if (!header) return;
+
+      const card = header.closest('.clinical-card');
+      if (!card) return;
+
+      card.classList.toggle('expanded');
+    });
+  })();
   </script>
 </body>
 </html>
