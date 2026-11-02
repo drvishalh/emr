@@ -1219,6 +1219,20 @@
 
 /* Hide mobile bottom dock on large desktop screens */
 @media (min-width: 769px) {
+  .ekacare-bottom_dock {
+    display: none !important;
+  }
+}
+  /* Add dropdown arrow indicator to headers */
+  .clinical-card-header::after {
+    content: " ▼";
+    font-size: 10px;
+    color: var(--brand-600);
+  }
+}
+
+/* Hide mobile bottom dock on large desktop screens */
+@media (min-width: 769px) {
   .ekacare-bottom-dock {
     display: none !important;
   }
@@ -3050,7 +3064,7 @@ window.addEventListener("DOMContentLoaded", () => {
       }).catch(err => console.error("Cloud fetch error:", err));
   }
 
-  // Bulletproof Mobile Accordion Script
+  // Foolproof mobile accordion class toggler
   if (window.innerWidth <= 768) {
     document.addEventListener("click", (e) => {
       const header = e.target.closest(".clinical-card-header");
@@ -3058,15 +3072,6 @@ window.addEventListener("DOMContentLoaded", () => {
         const card = header.closest(".clinical-card");
         if (card) {
           card.classList.toggle("expanded");
-          const body = card.querySelector(".clinical-card-body");
-          if (body) {
-            // Force toggle display style as a backup to CSS classes
-            if (card.classList.contains("expanded")) {
-              body.style.setProperty("display", "block", "important");
-            } else {
-              body.style.setProperty("display", "none", "important");
-            }
-          }
         }
       }
     });
