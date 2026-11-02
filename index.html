@@ -3026,21 +3026,20 @@ window.addEventListener("DOMContentLoaded", () => {
       }).catch(err => console.error("Cloud fetch error:", err));
   }
 
-  // Foolproof mobile accordion toggle
+  // Foolproof mobile accordion event delegation
   if (window.innerWidth <= 768) {
-    document.querySelectorAll(".clinical-card-header").forEach(header => {
-      header.addEventListener("click", () => {
-        // Find the parent clinical-card
+    document.addEventListener("click", (e) => {
+      const header = e.target.closest(".clinical-card-header");
+      if (header) {
         const card = header.closest(".clinical-card");
         if (card) {
-          // Find the card body inside this card
           const body = card.querySelector(".clinical-card-body");
           if (body) {
-            const isHidden = window.getComputedStyle(body).display === "none";
-            body.style.display = isHidden ? "block" : "none";
+            const currentDisplay = window.getComputedStyle(body).display;
+            body.style.display = (currentDisplay === "none" || currentDisplay === "") ? "block" : "none";
           }
         }
-      });
+      }
     });
   }
 
