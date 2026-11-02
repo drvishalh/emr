@@ -1227,21 +1227,41 @@
     }
   }
 
-  /* ==========================================================================
-     PATIENT ID & CLINICAL CARD GRID FIX (Prevents Overlaps)
+  //* ==========================================================================
+     PATIENT ID & CLINICAL CARD GRID FIX (Bulletproof Overlap Fix)
      ========================================================================== */
-  .clinical-card .form-grid {
-      display: grid !important;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
-      gap: 12px !important;
+  .clinical-card {
       position: relative !important;
-      margin-bottom: 15px !important;
+      display: block !important;
+      height: auto !important;
+      clear: both !important;
   }
 
   .clinical-card-body {
       position: relative !important;
-      padding: 15px !important;
       display: block !important;
+      padding: 15px !important;
+      margin-top: 5px !important;
+  }
+
+  /* Force Patient ID form row into a clean grid */
+  .clinical-card .form-grid, 
+  .patient-id-grid {
+      display: grid !important;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)) !important;
+      gap: 12px !important;
+      position: relative !important;
+      width: 100% !important;
+      margin-top: 10px !important;
+      margin-bottom: 15px !important;
+  }
+
+  /* Prevent individual form fields from overlapping */
+  .clinical-card .form-group {
+      position: relative !important;
+      display: flex !important;
+      flex-direction: column !important;
+      margin-bottom: 10px !important;
   }
 </style>
 </head>
