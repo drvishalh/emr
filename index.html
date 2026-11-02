@@ -1227,8 +1227,8 @@
     }
   }
 
-  //* ==========================================================================
-     PATIENT ID & CLINICAL CARD GRID FIX (Bulletproof Overlap Fix)
+  /* ==========================================================================
+     PATIENT ID & CLINICAL CARD GRID FIX (Full Horizontal Flow)
      ========================================================================== */
   .clinical-card {
       position: relative !important;
@@ -1241,27 +1241,33 @@
       position: relative !important;
       display: block !important;
       padding: 15px !important;
-      margin-top: 5px !important;
   }
 
-  /* Force Patient ID form row into a clean grid */
+  /* Force the entire patient identification block into a multi-column CSS Grid */
   .clinical-card .form-grid, 
-  .patient-id-grid {
+  .patient-id-grid,
+  .clinical-card-body > .form-grid {
       display: grid !important;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)) !important;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
       gap: 12px !important;
       position: relative !important;
       width: 100% !important;
-      margin-top: 10px !important;
       margin-bottom: 15px !important;
   }
 
-  /* Prevent individual form fields from overlapping */
+  /* Ensure individual form groups expand nicely into the grid */
   .clinical-card .form-group {
       position: relative !important;
       display: flex !important;
       flex-direction: column !important;
       margin-bottom: 10px !important;
+      grid-column: span 1 !important;
+  }
+
+  /* Allow broader text areas or history fields to span wider if needed */
+  .clinical-card .form-group.wide,
+  .clinical-card .form-group-full {
+      grid-column: span 2 !important;
   }
 </style>
 </head>
