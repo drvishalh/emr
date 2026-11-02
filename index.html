@@ -1221,12 +1221,29 @@
     }
 
     /* Hide mobile bottom dock on large desktop screens */
-    @media (min-width: 769px) {
-      .ekacare-bottom-dock {
-        display: none !important;
-      }
+  @media (min-width: 769px) {
+    .ekacare-bottom-dock {
+      display: none !important;
     }
-  </style>
+  }
+
+  /* ==========================================================================
+     PATIENT ID & CLINICAL CARD GRID FIX (Prevents Overlaps)
+     ========================================================================== */
+  .clinical-card .form-grid {
+      display: grid !important;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
+      gap: 12px !important;
+      position: relative !important;
+      margin-bottom: 15px !important;
+  }
+
+  .clinical-card-body {
+      position: relative !important;
+      padding: 15px !important;
+      display: block !important;
+  }
+</style>
 </head>
 <body>
 
