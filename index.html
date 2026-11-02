@@ -19,23 +19,42 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-    <!-- PIN Protection Script (Make sure these <script> tags are here!) -->
-    <script>
-    (function() {
-        const CLINIC_PIN = "2016"; 
-        let isAuthenticated = sessionStorage.getItem("pranav_emr_auth") === "true";
+    <<!-- Secure Password Authentication with Lockout Protection -->
+<script>
+(function() {
+    const SECURE_PASSWORD = "Pranav@2016";
+    let isAuthenticated = sessionStorage.getItem("pranav_emr_auth") === "true";
+    let failedAttempts = parseInt(localStorage.getItem("emr_failed_attempts") || "0");
+    let lockoutTime = parseInt(localStorage.getItem("emr_lockout_time") || "0");
 
-        if (!isAuthenticated) {
-            let enteredPin = prompt("Enter Clinic Access PIN:");
-            if (enteredPin === CLINIC_PIN) {
-                sessionStorage.setItem("pranav_emr_auth", "true");
-            } else {
-                document.body.innerHTML = "<h2 style='text-align:center; margin-top:20vh; font-family:sans-serif; color:#333;'>Access Denied. Authorized Clinic Staff Only.</h2>";
-                throw new Error("Unauthorized Access");
-            }
+    if (!isAuthenticated) {
+        if (Date.now() < lockoutTime) {
+            let remainingSecs = Math.ceil((lockoutTime - Date.now()) / 1000);
+            document.body.innerHTML = `<h2 style='text-align:center; margin-top:20vh; font-family:sans-serif; color:#d9534f;'>🔒 Security Lockout. Try again in ${remainingSecs} seconds.</h2>`;
+            throw new Error("Locked out");
         }
-    })();
-    </script>
+
+        let enteredPass = prompt("Enter Secure Clinic Password:");
+        if (enteredPass === SECURE_PASSWORD) {
+            sessionStorage.setItem("pranav_emr_auth", "true");
+            localStorage.setItem("emr_failed_attempts", "0");
+            localStorage.removeItem("emr_lockout_time");
+        } else {
+            failedAttempts++;
+            localStorage.setItem("emr_failed_attempts", failedAttempts);
+            if (failedAttempts >= 3) {
+                let blockUntil = Date.now() + 30000; // 30 seconds lockout
+                localStorage.setItem("emr_lockout_time", blockUntil);
+                alert("🚨 Too many incorrect attempts. Locked for 30 seconds.");
+            } else {
+                alert(`❌ Incorrect password. ${3 - failedAttempts} attempt(s) remaining.`);
+            }
+            document.body.innerHTML = "<h2 style='text-align:center; margin-top:20vh; font-family:sans-serif; color:#333;'>Access Denied. Please refresh to try again.</h2>";
+            throw new Error("Unauthorized Access");
+        }
+    }
+})();
+</script>
 </head>
   <!-- External Print & QR Helpers (Fallback to Offline Canvas/SVG included in Part 3) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
