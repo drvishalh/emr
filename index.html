@@ -2848,11 +2848,10 @@ if (!patientMap.has(patientKey)) {
     name: pName,
     age: pAge,
     mobile: pPhone,
-    gender: genderIdx !== -1 ? cols[genderIdx].replace(/^"|"$/g, '').trim() : '',, // <-- Comma added here
+    gender: genderIdx !== -1 ? cols[genderIdx].replace(/^"|"$/g, '').trim() : '',
     visitsMap: new Map()
   });
 }
-
         const pat = patientMap.get(patientKey);
         if (!pat.visitsMap.has(rxId)) {
           pat.visitsMap.set(rxId, {
@@ -3146,7 +3145,6 @@ window.addEventListener("DOMContentLoaded", () => {
   if (typeof renderRevenueLedger === "function") renderRevenueLedger();
   if (typeof updateTopKpis === "function") updateTopKpis();
   if (typeof refreshPrintPreview === "function") refreshPrintPreview();
-});
 
 // ==========================================
 // WORKSPACE SWITCHER (Must be global!)
