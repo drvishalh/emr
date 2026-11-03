@@ -2816,6 +2816,7 @@ function processEkaCareImport(event) {
       const phoneIdx = header.indexOf('Patient_Phone');
       const uhidIdx = header.indexOf('Patient_UHID');
       const ageIdx = header.indexOf('Patient_Age');
+const genderIdx = header.indexOf('Patient_Gender');
       const dateIdx = header.indexOf('date');
       const typeIdx = header.indexOf('Type');
       const medNameIdx = header.indexOf('Name');
@@ -2847,6 +2848,7 @@ function processEkaCareImport(event) {
             name: pName,
             age: pAge,
             mobile: pPhone,
+gender: genderIdx !== -1 ? cols[genderIdx].replace(/^"|"$/g, '').trim() : ''
             visitsMap: new Map()
           });
         }
@@ -3991,9 +3993,17 @@ function handleInstantPatientSearch(q) {
   }).join("");
 }
 // ==========================================
-// MANUAL PATIENT RECORD MERGE MODULE
+// SAFE MANUAL PATIENT RECORD MERGE MODULE
 // ==========================================
 function mergePatients(sourceUhid, targetUhid) {
+  sourceUhid = (sourceUhid || "").trim();
+  targetUhid = (targetUhid || "").trim();
+
+  if (!sourceUhid || !targetUhid) {
+    alert("Please enter both Source UHID and Target UHID.");
+    return;
+  }
+
   if (sourceUhid === targetUhid) {
     alert("Source and target patient UHIDs cannot be the same.");
     return;
@@ -4003,11 +4013,11 @@ function mergePatients(sourceUhid, targetUhid) {
   const targetPatient = appState.patients.find(p => p.uhid === targetUhid);
 
   if (!sourcePatient || !targetPatient) {
-    alert("Could not find both patient records for merging.");
+    alert("Could not find both patient records for merging in the current registry.");
     return;
   }
 
-  if (!confirm(`Are you sure you want to merge patient "${sourcePatient.name}" (${sourceUhid}) into target master record "${targetPatient.name}" (${targetUhid})? All visits and history will be combined.`)) {
+  if (!confirm(`Merge patient "${sourcePatient.name}" (${sourceUhid}) into master record "${targetPatient.name}" (${targetUhid})? All visits will be combined and the duplicate will be removed.`)) {
     return;
   }
 
@@ -4015,25 +4025,31 @@ function mergePatients(sourceUhid, targetUhid) {
   targetPatient.visits = (targetPatient.visits || []).concat(sourcePatient.visits || []);
   targetPatient.visits.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
 
-  // 2. Fill in any missing demographic gaps on the target profile
+  // 2. Fill in missing demographic gaps
   if (!targetPatient.age && sourcePatient.age) targetPatient.age = sourcePatient.age;
   if (!targetPatient.gender && sourcePatient.gender) targetPatient.gender = sourcePatient.gender;
   if (!targetPatient.comorbidities && sourcePatient.comorbidities) targetPatient.comorbidities = sourcePatient.comorbidities;
   if (!targetPatient.allergies && sourcePatient.allergies) targetPatient.allergies = sourcePatient.allergies;
   if (!targetPatient.mobile && sourcePatient.mobile) targetPatient.mobile = sourcePatient.mobile;
 
-  // 3. Remove the source (duplicate) patient from the master array
+  // 3. Remove ONLY the source duplicate from the array
   appState.patients = appState.patients.filter(p => p.uhid !== sourceUhid);
 
-  // 4. Save state locally and update Firebase cloud database in real time
+  // 4. Persist local state
   if (typeof persistMasterState === "function") persistMasterState();
 
+  // 5. Safely update Firebase for these specific two records ONLY (Never touch root path!)
   if (typeof firebase !== "undefined") {
-    firebase.database().ref(`clinics/pranav_padi/patients/${sourceUhid.replace(/[.$#\[\]\/]/g, "_")}`).remove();
-    firebase.database().ref(`clinics/pranav_padi/patients/${targetUhid.replace(/[.$#\[\]\/]/g, "_")}`).set(targetPatient);
+    const cleanSourceId = sourceUhid.replace(/[.$#\[\]\/]/g, "_");
+    const cleanTargetId = targetUhid.replace(/[.$#\[\]\/]/g, "_");
+    
+    // Remove only the duplicate
+    firebase.database().ref(`clinics/pranav_padi/patients/${cleanSourceId}`).remove();
+    // Update only the target master record
+    firebase.database().ref(`clinics/pranav_padi/patients/${cleanTargetId}`).set(targetPatient);
   }
 
-  // 5. Refresh UI views
+  // 6. Refresh UI
   if (typeof renderPatientRegistryTable === "function") renderPatientRegistryTable();
   if (typeof updateTopKpis === "function") updateTopKpis();
 
