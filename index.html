@@ -1896,6 +1896,9 @@
 <button type="button" class="btn btn-amber" onclick="dispatchGoogleReviewWhatsApp()">
   ⭐ Request Google Review
 </button>
+<button type="button" class="btn btn-teal btn-sm" onclick="dispatchTwoStepSmartBookingInvite()" title="Send 2-Step Smart Review & Lab Booking Link">
+  📅 Send Smart Review & Booking Invite
+</button>
             </div>
           </div>
         </section>
@@ -3933,40 +3936,48 @@ function calculateRowTotalTablets(container) {
       alert(`✅ Consultation successfully saved for ${name} (UHID: ${uhid})! Follow-up and billing synchronized.`);
     }
 
-    // ==========================================================================
-    // 12. INSTANT PATIENT SEARCH & TIMELINE MODAL
-    // ==========================================================================
-    function handleInstantPatientSearch(q) {
-      const box = document.getElementById("instant-search-dropdown");
-      const query = q.trim().toLowerCase();
-      if (!query) {
-        box.style.display = "none";
-        box.innerHTML = "";
-        return;
-      }
-      const matches = appState.patients.filter(p =>
-        (p.name && p.name.toLowerCase().includes(query)) ||
-        (p.uhid && p.uhid.toLowerCase().includes(query)) ||
-        (p.mobile && p.mobile.includes(query))
-      ).slice(0, 6);
+    // ==========================================
+// UPGRADED INSTANT PATIENT SEARCH (Handles Families & Prevents Confusion)
+// ==========================================
+function handleInstantPatientSearch(q) {
+  const box = document.getElementById("instant-search-dropdown");
+  const query = q.trim().toLowerCase();
+  if (!query) {
+    box.style.display = "none";
+    box.innerHTML = "";
+    return;
+  }
 
-      if (!matches.length) {
-        box.style.display = "block";
-        box.innerHTML = `<div style="font-size:12px; color:var(--text-muted); padding:4px;">No matching patient found in master registry.</div>`;
-        return;
-      }
+  // Filter matches by Name, UHID, or Mobile Number
+  const matches = appState.patients.filter(p => 
+    (p.name && p.name.toLowerCase().includes(query)) || 
+    (p.uhid && p.uhid.toLowerCase().includes(query)) || 
+    (p.mobile && p.mobile.includes(query))
+  ).slice(0, 8); // Show up to 8 distinct options
 
-      box.style.display = "block";
-      box.innerHTML = matches.map(p => `
-        <div style="padding:6px 8px; border-bottom:1px solid var(--border-light); display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="loadPatientIntoConsultation('${p.uhid}')">
-          <div>
-            <strong>${p.name}</strong> (${p.uhid}) — 📱 ${p.mobile || "N/A"}
-            <div style="font-size:11px; color:var(--text-muted);">Last Diagnosis: ${(p.visits && p.visits[0]) ? p.visits[0].diagnosis : "None"}</div>
-          </div>
-          <button type="button" class="btn btn-primary btn-xs">Load Patient</button>
+  if (!matches.length) {
+    box.style.display = "block";
+    box.innerHTML = `<div style="font-size:12px; color:var(--text-muted); padding:6px;">No matching patient found. Type full name or mobile to register new.</div>`;
+    return;
+  }
+
+  box.style.display = "block";
+  box.innerHTML = matches.map(p => {
+    const lastVisit = (p.visits && p.visits[0]) ? `${p.visits[0].date} (${p.visits[0].diagnosis || 'General'})` : 'No prior visits';
+    const familyTag = p.mobile ? `📱 ${p.mobile}` : '';
+    
+    return `
+      <div style="padding:8px 10px; border-bottom:1px solid var(--border-light); display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="loadPatientIntoConsultation('${p.uhid}')">
+        <div>
+          <strong style="color:var(--primary);">${p.name}</strong> <span style="font-size:12px; color:#555;">(${p.uhid})</span>
+          <div style="font-size:11px; color:var(--text-muted);">Age/Sex: ${p.age || '-'}Y / ${p.gender || '-'} | ${familyTag}</div>
+          <div style="font-size:11px; color:#0284c7; font-weight:500;">Last: ${lastVisit}</div>
         </div>
-      `).join("");
-    }
+        <button type="button" class="btn btn-primary btn-xs">Load</button>
+      </div>
+    `;
+  }).join("");
+}
 
     function loadPatientIntoConsultation(uhid) {
   const p = appState.patients.find(x => x.uhid === uhid);
@@ -4359,6 +4370,31 @@ function dispatchConsultStartedWhatsApp() {
   }
   
   const msg = `Dear ${name}, your consultation with Dr. Vishal H has officially started at Pranav Diabetic & General Health Clinic, Padi, Chennai. Please step inside the consultation room.`;
+  const phone = mobile.length === 10 ? "91" + mobile : mobile;
+  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
+}
+// ==========================================================================
+// TWO-STEP SMART FOLLOW-UP, LAB PULL & BOOKING CONFIRMATION WORKFLOW
+// ==========================================================================
+function dispatchTwoStepSmartBookingInvite() {
+  const name = document.getElementById("pt-name").value.trim() || "Patient";
+  const mobile = document.getElementById("pt-mobile").value.trim();
+  
+  if (!mobile) {
+    alert("Please enter the patient's mobile number first.");
+    document.getElementById("pt-mobile").focus();
+    return;
+  }
+
+  const reviewDate = document.getElementById("pt-next-review-date").value || "as advised";
+  const labInput = document.getElementById("pt-investigations") || document.getElementById("lab-investigations-input");
+  const requestedLabs = labInput ? labInput.value.trim() : "";
+  const labText = requestedLabs ? ` Please complete your advised tests (${requestedLabs}) before review.` : ` Please bring your blood sugar logs.`;
+
+  const bookingUrl = "https://drvishalh.github.io/emr/book.html"; 
+
+  const msg = `Hello ${name}, gentle follow-up reminder from Pranav Diabetic & General Health Clinic (Dr. Vishal H). Your review is due on ${reviewDate}.${labText} Are you planning to visit? Reply 'YES' to confirm your visit, or book your preferred slot directly here: ${bookingUrl} . Wishing you great health!`;
+
   const phone = mobile.length === 10 ? "91" + mobile : mobile;
   window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
 }
