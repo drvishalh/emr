@@ -2088,6 +2088,18 @@
        ======================================================================== -->
   <section id="view-patients" class="workspace-view">
     <div class="clinical-card">
+<div class="card p-3 my-3 no-print" style="background: #fdf8f6; border: 1px dashed var(--primary);">
+  <h5>🔗 Manual Patient Merge Tool</h5>
+  <p class="text-muted small mb-2">Enter the duplicate UHID to merge into the correct master UHID. All visit history will be combined and the duplicate will be removed.</p>
+  <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+    <input type="text" id="merge-source-uhid" class="form-control" placeholder="Source UHID (Duplicate)" style="max-width:240px;">
+    <span style="font-weight:bold; color:#666;">➡️ INTO ➡️</span>
+    <input type="text" id="merge-target-uhid" class="form-control" placeholder="Target UHID (Master)" style="max-width:240px;">
+    <button type="button" class="btn btn-danger btn-sm" onclick="mergePatients(document.getElementById('merge-source-uhid').value.trim(), document.getElementById('merge-target-uhid').value.trim())">
+      Merge Records
+    </button>
+  </div>
+</div>
       <div class="clinical-card-header">
         <div class="clinical-card-title">
           <span>📥 EkaCare Patient &amp; Clinical Records Importer (CSV / JSON)</span>
@@ -3978,7 +3990,55 @@ function handleInstantPatientSearch(q) {
     `;
   }).join("");
 }
+// ==========================================
+// MANUAL PATIENT RECORD MERGE MODULE
+// ==========================================
+function mergePatients(sourceUhid, targetUhid) {
+  if (sourceUhid === targetUhid) {
+    alert("Source and target patient UHIDs cannot be the same.");
+    return;
+  }
 
+  const sourcePatient = appState.patients.find(p => p.uhid === sourceUhid);
+  const targetPatient = appState.patients.find(p => p.uhid === targetUhid);
+
+  if (!sourcePatient || !targetPatient) {
+    alert("Could not find both patient records for merging.");
+    return;
+  }
+
+  if (!confirm(`Are you sure you want to merge patient "${sourcePatient.name}" (${sourceUhid}) into target master record "${targetPatient.name}" (${targetUhid})? All visits and history will be combined.`)) {
+    return;
+  }
+
+  // 1. Combine visit histories (sort newest first)
+  targetPatient.visits = (targetPatient.visits || []).concat(sourcePatient.visits || []);
+  targetPatient.visits.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+
+  // 2. Fill in any missing demographic gaps on the target profile
+  if (!targetPatient.age && sourcePatient.age) targetPatient.age = sourcePatient.age;
+  if (!targetPatient.gender && sourcePatient.gender) targetPatient.gender = sourcePatient.gender;
+  if (!targetPatient.comorbidities && sourcePatient.comorbidities) targetPatient.comorbidities = sourcePatient.comorbidities;
+  if (!targetPatient.allergies && sourcePatient.allergies) targetPatient.allergies = sourcePatient.allergies;
+  if (!targetPatient.mobile && sourcePatient.mobile) targetPatient.mobile = sourcePatient.mobile;
+
+  // 3. Remove the source (duplicate) patient from the master array
+  appState.patients = appState.patients.filter(p => p.uhid !== sourceUhid);
+
+  // 4. Save state locally and update Firebase cloud database in real time
+  if (typeof persistMasterState === "function") persistMasterState();
+
+  if (typeof firebase !== "undefined") {
+    firebase.database().ref(`clinics/pranav_padi/patients/${sourceUhid.replace(/[.$#\[\]\/]/g, "_")}`).remove();
+    firebase.database().ref(`clinics/pranav_padi/patients/${targetUhid.replace(/[.$#\[\]\/]/g, "_")}`).set(targetPatient);
+  }
+
+  // 5. Refresh UI views
+  if (typeof renderPatientRegistryTable === "function") renderPatientRegistryTable();
+  if (typeof updateTopKpis === "function") updateTopKpis();
+
+  alert(`Successfully merged ${sourceUhid} into ${targetUhid}!`);
+}
     function loadPatientIntoConsultation(uhid) {
   const p = appState.patients.find(x => x.uhid === uhid);
   if (!p) return;
