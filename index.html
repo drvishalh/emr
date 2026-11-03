@@ -2843,12 +2843,12 @@ const genderIdx = header.indexOf('Patient_Gender');
 
         const patientKey = pUhid || pPhone || pName;
 if (!patientMap.has(patientKey)) {
-  patientMap.set(patientKey, {        // <--- Make sure this opening bracket is here!
+  patientMap.set(patientKey, {
     uhid: pUhid,
     name: pName,
     age: pAge,
     mobile: pPhone,
-    gender: genderIdx !== -1 ? cols[genderIdx].replace(/^"|"$/g, '').trim() : '',
+    gender: genderIdx !== -1 ? cols[genderIdx].replace(/^"|"$/g, '').trim() : '',, // <-- Comma added here
     visitsMap: new Map()
   });
 }
@@ -3151,7 +3151,7 @@ window.addEventListener("DOMContentLoaded", () => {
 // ==========================================
 // WORKSPACE SWITCHER (Must be global!)
 // ==========================================
-ffunction switchWorkspace(viewId, btnEl) {
+function switchWorkspace(viewId, btnEl) {
   document.querySelectorAll(".workspace-view").forEach(v => v.classList.remove("active"));
   document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
   
